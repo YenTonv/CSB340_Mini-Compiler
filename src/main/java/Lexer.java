@@ -119,9 +119,19 @@ public class Lexer {
             default: return identifier_or_integer(line, pos);
         }
     }
-
+    
     char getNextChar() {
-        // get next character
+        this.pos++;
+        this.position++;
+        if (this.position >= this.s.length()) {
+            this.chr = '\u0000';
+            return this.chr;
+        }
+        this.chr = this.s.charAt(this.position);
+        if (this.chr == '\n') {
+            this.line++;
+            this.pos = 0;
+        }
         return this.chr;
     }
 
