@@ -1,15 +1,20 @@
-int loop, number;
-int prime = 1;
-
-number = 11;
-
-for(loop = 2; loop < number; loop++) {
-  if((number % loop) == 0) {
-     prime = 0;
-  }
+/*
+Simple prime number generator
+*/
+count = 1;
+n = 1;
+limit = 100;
+while (n < limit) {
+    k=3;
+    p=1;
+    n=n+2;
+    while ((k*k<=n) && (p)) {
+        p=n/k*k!=n;
+        k=k+2;
+    }
+    if (p) {
+        print(n, " is prime\n");
+        count = count + 1;
+    }
 }
-
-if (prime == 1)
-  printf("%d is prime number.", number);
-else
-  printf("%d is not a prime number.", number);
+print("Total primes found: ", count, "\n");
