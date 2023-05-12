@@ -142,17 +142,34 @@ def expr(p):
         node = expr(Tokens[tk_Negate][TK_PRECEDENCE])
         x = (make_node(nd_Negate, node) if op == tk_Negate else node)
 
-    #elif... more code here
+    #elif... more code here 1jc added code here
 
+    elif tok == tk_Not:
+        gettok()
+        x = make_node(nd_Not, expr(Tokens[tk_Not][TK_PRECEDENCE]))
+    elif tok == tk_Ident:
+        x = make_leaf(nd_Ident, tok_other)
+        gettok()
+    elif tok == tk_Integer:
+        x = make_leaf(nd_Integer, tok_other)
+        gettok()
+    else:
+        error("Expecting a primary, found: %s" % (Tokens[tok][TK_NAME]))
+
+   
     while Tokens[tok][TK_IS_BINARY] and Tokens[tok][TK_PRECEDENCE] >= p:
         op = tok
         gettok()
-        # multiple lines of code missing here
         
-        x = make_node(Tokens[op][TK_NODE], x, node)
-
-    return x
-
+        # multiple lines of code missing here 1jc added code here
+        
+    q = Tokens[tok][TK_PRECEDENCE]
+    if not Tokens[tok][TK_RIGHT_ASSOC]:
+            q += 1
+            node = expr(q)
+            x = make_node(Tokens[tok][TK_NODE],"x", node)
+          #  return x    
+      
 #***
 def paren_expr():
     expect("paren_expr", tk_Lparen)
@@ -179,9 +196,46 @@ def stmt():
         t = make_node(nd_Prtc, e)
         expect("Putc", tk_Semi)
 
-    # additional elifs here following similar format
+    # additional elifs here following similar format 1jc added code here
 
-    elif tok == tk_EOI:
+     elif tok == tk_Print:
+        gettok()
+        expect("Print", tk_Lparen)
+        while True:
+            if tok == tk_String:
+                e = make_node(nd_Prts, make_leaf(nd_String, tok_other))
+                gettok()
+            else:
+                e = make_node(nd_Prti, expr(0))
+
+            t = make_node(nd_Sequence, t, e)
+            if tok != tk_Comma:
+                break
+            gettok()
+        expect("Print", tk_Rparen)
+        expect("Print", tk_Semi)
+    elif tok == tk_Semi:
+        gettok()
+    elif tok == tk_Ident:
+        v = make_leaf(nd_Ident, tok_other)
+        gettok()
+        expect("assign", tk_Assign)
+        e = expr(0)
+        t = make_node(nd_Assign, v, e)
+        expect("assign", tk_Semi)
+    elif tok == tk_While:
+        gettok()
+        e = paren_expr()
+        s = stmt()
+        t = make_node(nd_While, e, s)
+    elif tok == tk_Lbrace:
+        gettok()
+        while tok != tk_Rbrace and tok != tk_EOI:
+            t = make_node(nd_Sequence, t, stmt())
+        expect("Lbrace", tk_Rbrace)
+        
+        
+elif tok == tk_EOI:
         pass
     else:
         error("Expecting start of statement, found: %s" % (Tokens[tok][TK_NAME]))
