@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * Lexer class & main class
+ * @author        Yen Ton
+ * @version       2022-05-16
+ */
 public class Lexer {
     private int line;
     private int pos;
@@ -88,10 +93,10 @@ public class Lexer {
     }
 
     /**
-     *
-     * @param line
-     * @param pos
-     * @return
+     * handle character literals
+     * @param line          line of the character literal
+     * @param pos           position of the character literal
+     * @return              return token type of the character literal with its line and position
      */
     Token char_lit(int line, int pos) { // handle character literals
         //System.out.println("char_lit:" + " line " + this.line + "pos " + this.pos + " this.chr " + this.chr);
@@ -129,13 +134,12 @@ public class Lexer {
     }
 
     /**
-     *
-     * @param line
-     * @param pos
-     * @return
+     * Handle string literals
+     * @param line          line of the string literal
+     * @param pos           position of the string literal
+     * @return              return token type of the string literal with its line and position
      */
     Token string_lit(int line, int pos) { // handle string literals
-        //System.out.println("string_lit:" + " line " + this.line + "pos " + this.pos + " this.chr " + this.chr);
         String result = "";
         char c = getNextChar(); // skip opening quote
 
@@ -155,10 +159,12 @@ public class Lexer {
     /**
      * Use when lexer encounters a '/'.
      * If it's part of a comment, skip the comment content. Otherwise it's a division operator.
+     * @param line          line of the division or comments
+     * @param pos           position of the division or comments
+     * @return              return token type of the division or comments with its line and position
      */
     Token div_or_comment(int line, int pos) { // handle division or comments
         // code here
-        //System.out.println("div_or_comment:" + " line " + this.line + "pos " + this.pos + " this.chr " + this.chr);
         this.chr = this.s.charAt(this.position);
 
         char nextChr = getNextChar();
@@ -186,14 +192,15 @@ public class Lexer {
     }
 
     /**
-     *
-     * @param start
-     * @param line
-     * @param pos
-     * @return
+     * When the first character is not any special character, it can be only identifiers or integers
+     * Identifiers must start with an underscore or a letter. Identifiers can't have digits
+     * Integers must only include digits
+     * @param start         the first character of the identifiers or integers
+     * @param line          line of the identifier and integers
+     * @param pos           position of the identifier and integers
+     * @return              return token type of the identifier and integers with its line and position
      */
     Token identifier_or_integer(char start, int line, int pos) { // handle identifiers and integers
-        //System.out.println("identifier_or_integer:" + " line " + this.line + " pos " + this.pos + " this.chr " + this.chr);
         String text = "";
         char c = start;
 
@@ -223,17 +230,6 @@ public class Lexer {
         return new Token(TokenType.Identifier, text, line, pos);
     }
 
-    Token subtract_or_negate(int line, int pos) {
-        System.out.println("subtract_or_negate:" + " line " + this.line + " pos " + this.pos + " this.chr " + this.chr);
-        boolean is_negate = true;
-        String text = "";
-        getNextChar();
-
-        // code here
-
-
-        return new Token(TokenType.Op_subtract, text, line, pos);
-    }
 
     Token getToken() {
         int line, pos;
@@ -244,8 +240,6 @@ public class Lexer {
         pos = this.pos;
 
         // switch statement on character for all forms of tokens with return to follow.... one example left for you
-        //System.out.println("Before switch: this.chr " + this.chr);
-
         switch (this.chr) {
             case '\u0000': return new Token(TokenType.End_of_input, "", this.line, this.pos);
             // remaining case statements
@@ -261,7 +255,7 @@ public class Lexer {
             case '/': return div_or_comment(line, pos);
             case '%': getNextChar(); return new Token(TokenType.Op_mod, "", line, pos);
             case '+': getNextChar(); return new Token(TokenType.Op_add, "", line, pos);
-            case '-': return subtract_or_negate(line, pos);
+            case '-': getNextChar(); return new Token(TokenType.Op_subtract, "", line, pos);
             case '<': return follow('=', TokenType.Op_lessequal, TokenType.Op_less, line, pos);
             case '>': return follow('=', TokenType.Op_greaterequal, TokenType.Op_greater, line, pos);
             case '=': return follow('=', TokenType.Op_equal, TokenType.Op_assign, line, pos);
